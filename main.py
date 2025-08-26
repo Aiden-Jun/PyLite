@@ -6,7 +6,6 @@ import subprocess
 from PIL import Image, ImageTk
 import re
 import os
-import ctypes
 from pathlib import Path
 
 
@@ -14,8 +13,7 @@ class TextEditor(tk.Frame):
     def __init__(self, master=None, **kwargs):
         super().__init__(master, **kwargs)
 
-        # Define font
-        editor_font = ("Consolas", 15)  # Change the size as needed
+        editor_font = ("Consolas", 15)
 
         self.text = tk.Text(self, wrap="word", undo=True, font=editor_font)
 
@@ -92,33 +90,28 @@ def switch_to_settings():
     settings_page.pack(fill="both", expand=True)
 
 
-dynamic_file_path = None  # global variable to store the file path
+dynamic_file_path = None
 
 
 def run():
-    global dynamic_file_path  # Access the global variable
+    global dynamic_file_path
 
     code = editor.text.get("1.0", tk.END)
 
-    # Check if the file has been saved
     if not code.strip():
-        # If the editor is empty prompt user to input some code
         save_file_as()
         return
 
-    # If the file path is not set prompt the user to save
     if dynamic_file_path is None:
         dynamic_file_path = filedialog.asksaveasfilename(
             defaultextension=".py", filetypes=[("Python Files", "*.py")]
         )
         if not dynamic_file_path:
-            return  # User canceled
+            return
 
-        # Save the code to the selected path
         with open(dynamic_file_path, "w") as f:
             f.write(code)
 
-    # Execute file directly
     subprocess.Popen(["start", "cmd", "/K", "python", dynamic_file_path], shell=True)
 
 
@@ -179,15 +172,13 @@ def save_file_as():
 
 
 def save_file():
-    global dynamic_file_path  # Access the global variable
+    global dynamic_file_path
 
-    # If the file has already been saved, overwrite it
     if dynamic_file_path:
         with open(dynamic_file_path, "w") as f:
             text_content = editor.text.get("1.0", tk.END)
             f.write(text_content)
     else:
-        # If the file has not been saved yet, prompt the user to save it
         save_file_as()
 
 
@@ -237,8 +228,7 @@ def close_window():
     root.destroy()
 
 
-# Load the logo image from URL for the navigation bar
-navbar_logo_path = "pylite.png"  # Update with your actual file path
+navbar_logo_path = "pylite.png"
 navbar_logo_image = Image.open(navbar_logo_path)
 navbar_resized_logo_image = ImageTk.PhotoImage(navbar_logo_image.resize((35, 35)))
 
@@ -255,7 +245,6 @@ img_close = ImageTk.PhotoImage(
     Image.open("closed.png").resize((15, 15)), name="img_close", master=root
 )
 
-# Create a transparent placeholder image (1px wide, invisible) for spacing
 img_placeholder = ImageTk.PhotoImage(
     Image.new("RGBA", (1, 1), (0, 0, 0, 0)), name="img_placeholder", master=root
 )
@@ -312,7 +301,7 @@ main_content = tk.Frame(main_menu)
 
 main_logo = tk.Frame(main_content)
 
-logo_path = "pylite.png"  # Use relative path or full path if needed
+logo_path = "pylite.png"
 logo_image = Image.open(logo_path)
 resized_logo_image = ImageTk.PhotoImage(logo_image.resize((100, 100)))
 
@@ -350,7 +339,6 @@ button_to_settings.pack(pady=5)
 
 main_content.pack(fill="both", expand=True, pady=10, padx=10)
 
-# Add navigation bar to the settings page
 settings_navbar = tk.Frame(settings_page, bg="#282c34", height=40)
 settings_navbar.pack(side="top", fill="x", pady=5)
 
@@ -359,13 +347,11 @@ settings_to_menu_button = ttk.Button(
 )
 settings_to_menu_button.pack(side="left", padx=10, pady=5)
 
-# Add widgets to the settings page
 settings_label = ttk.Label(
     settings_page, text="Settings", font=("helvetica", 30, "bold")
 )
 settings_label.pack(side="top", pady=(10, 20))
 
-# Create a frame to contain theme-related widgets
 theme_frame = ttk.Frame(settings_page, padding=20)
 theme_frame.pack()
 
@@ -376,11 +362,9 @@ theme_label.grid(row=0, column=0, sticky="w", padx=(0, 10))
 light_themes = ["Cosmo", "Minty", "Pulse", "Morph", "Lumen"]
 dark_themes = ["Darkly", "Cyborg", "Vapor", "Solar"]
 
-# Function to change the theme
 def change_theme():
     selected_theme = theme_var.get()
     style.theme_use(selected_theme.lower())
-    # Reapply custom Treeview font and rowheight after theme change
     style.configure("Treeview", font=("Helvetica", 13))
     style.configure("Treeview", font=("Helvetica", 13), rowheight=30)
     style.configure("Treeview.Heading", font=("Helvetica", 14, "bold"))
@@ -389,9 +373,8 @@ def change_theme():
 
 # Create a variable to store the selected theme
 theme_var = tk.StringVar(settings_page)
-theme_var.set("Darkly")  # Set default theme
+theme_var.set("Darkly")
 
-# Theme selector dropdown
 available_themes = light_themes + dark_themes
 theme_selector = ttk.Combobox(
     theme_frame,
@@ -429,16 +412,14 @@ button_open.pack(side="right", padx=0, pady=0, ipadx=0, ipady=0)
 def open_folder():
     folder_path = filedialog.askdirectory()
     if folder_path:
-        # Clear existing tree items
         for item in file_explorer.get_children():
             file_explorer.delete(item)
         fsobjects.clear()
 
         path = Path(folder_path)
-        # Insert root folder as the top-level item
         root_iid = insert_item(path.name, path, "")
         load_tree(path, root_iid)
-        file_explorer.item(root_iid, open=True)  # Expand root folder by default
+        file_explorer.item(root_iid, open=True)
 
 
 button_open_folder = ttk.Button(nav_bar, text="Open Folder", command=open_folder)
@@ -525,12 +506,12 @@ editor = TextEditor(editor_frame)
 editor.pack(fill="both", expand=True, padx=(5, 0))
 
 midsection.add(file_frame, weight=1)
-midsection.add(editor_frame, weight=4)  # Weight 4 means editor gets 4 times space
+midsection.add(editor_frame, weight=4)
 
 
 def maintain_split(event=None):
     total_width = midsection.winfo_width()
-    midsection.sashpos(0, int(total_width * 0.2))  # 20% for left pane
+    midsection.sashpos(0, int(total_width * 0.2))
 
 
 midsection.bind("<Configure>", maintain_split)
